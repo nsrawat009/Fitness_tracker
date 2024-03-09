@@ -1,89 +1,39 @@
+from sqlalchemy import Float, DateTime
+from sqlalchemy_utils import ChoiceType
 from database import Base
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session, relationship
-    
+from sqlalchemy import Column, Integer, Boolean, Text, String, ForeignKey
+from sqlalchemy.orm import relationship
+from datetime import datetime
 
-
-# Define models
 class User(Base):
-    __tablename__ = "users"
+    __tablename__='user'
+    id=Column(Integer,primary_key=True)
+    username=Column(String(25),unique=True)
+    email=Column(String(80),unique=True)
+    password=Column(Text,nullable=True)
+    is_admin=Column(Boolean,default=False)
+    is_active=Column(Boolean,default=False)
+    exercises=relationship('Exercise',back_populates='user')
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    disabled = Column(Boolean, default=False)
 
-    activities = relationship("Activity", back_populates="owner")
-    workouts = relationship("Workout", back_populates="owner")
+    def __repr__(self):
+        return f"<User {self.username}>"
 
-class Activity(Base):
-    __tablename__ = "activities"
+class Exercise(Base):
+    __tablename__ = "exercises"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    description = Column(String, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    sets = Column(Integer, index=True)
+    repetitions = Column(Integer, index=True)
+    weight_lifted = Column(Float, index=True)
+    distance_covered = Column(Float, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    calories_burned = Column(Float, index=True)
+    intensity_level = Column(ChoiceType([("low", "Low"), ("medium", "Medium"), ("high", "High")]), index=True)  
+    performance_notes = Column(Text)
+    user_id=Column(Integer,ForeignKey('user.id'))
+    user = relationship("User", back_populates="exercises")
 
-    owner = relationship("User", back_populates="activities")
-
-class Workout(Base):
-    __tablename__ = "workouts"
-
-    id = Column(Integer, primary_key=True, index=True)
-    date = Column(String, index=True)
-    duration = Column(Integer, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-
-    owner = relationship("User", back_populates="workouts")
-
-# from database import Base
-# from sqlalchemy import Column,Integer,Boolean,Text,String,ForeignKey
-# from sqlalchemy.orm import relationship
-# from sqlalchemy_utils.types import ChoiceType
-
-
-# class User(Base):
-#     __tablename__='user'
-#     id=Column(Integer,primary_key=True)
-#     username=Column(String(25),unique=True)
-#     email=Column(String(80),unique=True)
-#     password=Column(Text,nullable=True)
-#     is_staff=Column(Boolean,default=False)
-#     is_active=Column(Boolean,default=False)
-#     orders=relationship('Order',back_populates='user')
-
-
-#     def __repr__(self):
-#         return f"<User {self.username}"
-
-
-# class Order(Base):
-
-#     ORDER_STATUSES=(
-#         ('PENDING','pending'),
-#         ('IN-TRANSIT','in-transit'),
-#         ('DELIVERED','delivered')
-
-#     )
-
-#     PIZZA_SIZES=(
-#         ('SMALL','small'),
-#         ('MEDIUM','medium'),
-#         ('LARGE','large'),
-#         ('EXTRA-LARGE','extra-large')
-#     )
-
-
-#     __tablename__='orders'
-#     id=Column(Integer,primary_key=True)
-#     quantity=Column(Integer,nullable=False)
-#     order_status=Column(ChoiceType(choices=ORDER_STATUSES),default="PENDING")
-#     pizza_size=Column(ChoiceType(choices=PIZZA_SIZES),default="SMALL")
-#     user_id=Column(Integer,ForeignKey('user.id'))
-#     user=relationship('User',back_populates='orders')
-
-#     def __repr__(self):
-#         return f"<Order {self.id}>"
+    def __repr__(self):
+        return f"<Exercise {self.id}>"
