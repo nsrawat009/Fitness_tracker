@@ -20,12 +20,22 @@ class User(Base):
         return f"<User {self.username}>"
 
 class Exercise(Base):
+
+
+    EXERCISES_TYPES=(
+            ('PUSHUPS','pushups'),
+            ('Squats','squats'),
+            ('Plank','plank'),
+        )
+
+
+
     __tablename__ = "exercises"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    sets = Column(Integer, index=True)
-    repetitions = Column(Integer, index=True)
+    exercise_name = Column(ChoiceType(choices=EXERCISES_TYPES),default="PUSHUPS")
+    sets = Column(Integer,nullable=False)
+    repetitions = Column(Integer,nullable=False)
     weight_lifted = Column(Float, index=True)
     distance_covered = Column(Float, index=True)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)

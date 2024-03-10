@@ -4,8 +4,8 @@ from database import Session,engine
 from schemas import SignUpModel,LoginModel
 from models import User
 from fastapi.exceptions import HTTPException
-from werkzeug.security import generate_password_hash , check_password_hash
 from fastapi_jwt_auth import AuthJWT
+from werkzeug.security import generate_password_hash , check_password_hash
 from fastapi.encoders import jsonable_encoder
 
 
@@ -47,7 +47,7 @@ async def signup(user:SignUpModel):
                 username:int
                 email:str
                 password:str
-                is_staff:bool
+                is_admin:bool
                 is_active:bool
 
         ```
@@ -74,7 +74,7 @@ async def signup(user:SignUpModel):
         email=user.email,
         password=generate_password_hash(user.password),
         is_active=user.is_active,
-        is_staff=user.is_staff
+        is_admin=user.is_admin
     )
 
     session.add(new_user)
