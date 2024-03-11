@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 from fastapi_jwt_auth import AuthJWT
 from models import User,Exercise
 from schemas import WorkoutResponseModel
-from database import Session , engine
+from database import Session,engine
 from fastapi.encoders import jsonable_encoder
 
 exercise_router=APIRouter(
@@ -38,8 +38,17 @@ async def load_exercise(model:WorkoutResponseModel,Authorize:AuthJWT=Depends()):
     """
         ## Entering an exercise activity
         This requires the following
-        - exercise_name : str
-        - sets: int
+            id:Optional[int]
+            date:str
+            user_id:int
+            exercise_name =str
+            sets =int
+            repetitions =int
+            weight_lifted =float
+            distance_covered =float
+            calories_burned =float
+            intensity_level =str
+           
     
     """
 
@@ -60,7 +69,15 @@ async def load_exercise(model:WorkoutResponseModel,Authorize:AuthJWT=Depends()):
 
     new_exercise=Exercise(
         exercise_name=model.exercise_name,
-        sets=model.sets
+        sets=model.sets,
+        date=model.date,
+        user_id=model.user_id,
+        repetitions=model.repetitions,
+        weight_lifted=model.weight_lifted,
+        distance_covered=model.distance_covered,
+        calories_burned=model.calories_burned,
+        intensity_level=model.intensity_level,
+
     )   
 
     new_exercise.user=user
@@ -73,7 +90,14 @@ async def load_exercise(model:WorkoutResponseModel,Authorize:AuthJWT=Depends()):
     response={
         "exercise_name":new_exercise.exercise_name,
         "sets":new_exercise.sets,
-        "id":new_exercise.id,
+        "user_id":new_exercise.user_id,
+        "date":new_exercise.date,
+        "repetitions":new_exercise.repetitions,
+        "weight_lifted":new_exercise.weight_lifted,
+        "distance_covered":new_exercise.distance_covered,
+        "calories_burned":new_exercise.calories_burned,
+        "intensity_level":new_exercise.intensity_level
+
     }
 
     return jsonable_encoder(response)
@@ -81,124 +105,124 @@ async def load_exercise(model:WorkoutResponseModel,Authorize:AuthJWT=Depends()):
 
 
     
-@exercise_router.get('/userdetails')
-async def list_all_user_details(Authorize:AuthJWT=Depends()):
-    """
-        ## List all users details
-        This lists all workout creations made by all users. It can be accessed by admin only
+# @exercise_router.get('/userdetails')
+# async def list_all_user_details(Authorize:AuthJWT=Depends()):
+#     """
+#         ## List all users details
+#         This lists all workout creations made by all users. It can be accessed by admin only
         
     
-    """
+#     """
 
 
-    try:
-        Authorize.jwt_required()
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Token"
-        )
+#     try:
+#         Authorize.jwt_required()
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid Token"
+#         )
 
-    current_user=Authorize.get_jwt_subject()
+#     current_user=Authorize.get_jwt_subject()
 
-    user=session.query(User).filter(User.username==current_user).first()
+#     user=session.query(User).filter(User.username==current_user).first()
 
-    if user.is_admin:
-        orders=session.query(Exercise).all()
+#     if user.is_admin:
+#         orders=session.query(Exercise).all()
 
-        return jsonable_encoder(orders)
+#         return jsonable_encoder(orders) 
 
-    raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not an admin"
-        )
+#     raise  HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="You are not an admin"
+#         )
 
 
-@exercise_router.get('/userdetails/{id}')
-async def get_user_details_by_id(id:int,Authorize:AuthJWT=Depends()):
-    """
-        ## Get user details by its ID
-        This gets user details by its ID and is only accessed by admin
+# @exercise_router.get('/userdetails/{id}')
+# async def get_user_details_by_id(id:int,Authorize:AuthJWT=Depends()):
+#     """
+#         ## Get user details by its ID
+#         This gets user details by its ID and is only accessed by admin
         
 
-    """
+#     """
 
 
-    try:
-        Authorize.jwt_required()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Token"
-        )
+#     try:
+#         Authorize.jwt_required()
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid Token"
+#         )
 
-    user=Authorize.get_jwt_subject()
+#     user=Authorize.get_jwt_subject()
 
-    current_user=session.query(User).filter(User.username==user).first()
+#     current_user=session.query(User).filter(User.username==user).first()
 
-    if current_user.is_admin:
-        order=session.query(Exercise).filter(Exercise.id==id).first()
+#     if current_user.is_admin:
+#         order=session.query(Exercise).filter(Exercise.id==id).first()
 
-        return jsonable_encoder(order)
+#         return jsonable_encoder(order)
 
-    raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not alowed to carry out request"
-        )
+#     raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="User not alowed to carry out request"
+#         )
 
     
-@exercise_router.get('/user/userdetails')
-async def get_user_details(Authorize:AuthJWT=Depends()):
-    """
-        ## Get the current user's workout details
-        This lists the workout details made by the currently logged in users
+# @exercise_router.get('/user/userdetails')
+# async def get_user_details(Authorize:AuthJWT=Depends()):
+#     """
+#         ## Get the current user's workout details
+#         This lists the workout details made by the currently logged in users
     
-    """
+#     """
 
 
-    try:
-        Authorize.jwt_required()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Token"
-        )
+#     try:
+#         Authorize.jwt_required()
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid Token"
+#         )
 
-    user=Authorize.get_jwt_subject()
-
-
-    current_user=session.query(User).filter(User.username==user).first()
-
-    return jsonable_encoder(current_user.userdetails)
+#     user=Authorize.get_jwt_subject()
 
 
-@exercise_router.get('/user/userdetails/{id}/')
-async def get_specific_userdetails(id:int,Authorize:AuthJWT=Depends()):
-    """
-        ## Get a specific order by the currently logged in user
-        This returns an order by ID for the currently logged in user
+#     current_user=session.query(User).filter(User.username==user).first()
+
+#     return jsonable_encoder(current_user.userdetails)
+
+
+# @exercise_router.get('/user/userdetails/{id}/')
+# async def get_specific_userdetails(id:int,Authorize:AuthJWT=Depends()):
+#     """
+#         ## Get a specific order by the currently logged in user
+#         This returns an order by ID for the currently logged in user
     
-    """
+#     """
 
 
-    try:
-        Authorize.jwt_required()
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Token"
-        )
+#     try:
+#         Authorize.jwt_required()
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Invalid Token"
+#         )
 
-    subject=Authorize.get_jwt_subject()
+#     subject=Authorize.get_jwt_subject()
 
-    current_user=session.query(User).filter(User.username==subject).first()
+#     current_user=session.query(User).filter(User.username==subject).first()
 
-    orders=current_user.userdetails
+#     orders=current_user.userdetails
 
-    for o in orders:
-        if o.id == id:
-            return jsonable_encoder(o)
+#     for o in orders:
+#         if o.id == id:
+#             return jsonable_encoder(o)
     
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-        detail="No user details with such id"
-    )
+#     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+#         detail="No user details with such id"
+#     )
 
 
 @exercise_router.put('/exercise/update/{id}/')
@@ -236,28 +260,28 @@ async def update_user_details(id:int,model:WorkoutResponseModel,Authorize:AuthJW
 
     
 
-@exercise_router.delete('/exercise/delete/{id}/',status_code=status.HTTP_204_NO_CONTENT)
-async def delete_an_exercise_details(id:int,Authorize:AuthJWT=Depends()):
+# @exercise_router.delete('/exercise/delete/{id}/',status_code=status.HTTP_204_NO_CONTENT)
+# async def delete_an_exercise_details(id:int,Authorize:AuthJWT=Depends()):
 
-    """
-        ## Delete exercise details
-        This deletes exercise details by its ID
-    """
+#     """
+#         ## Delete exercise details
+#         This deletes exercise details by its ID
+#     """
 
-    try:
-        Authorize.jwt_required()
+#     try:
+#         Authorize.jwt_required()
 
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Token")
+#     except Exception as e:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Token")
 
 
-    exercise_to_delete=session.query(Exercise).filter(Exercise.id==id).first()
+#     exercise_to_delete=session.query(Exercise).filter(Exercise.id==id).first()
 
-    session.delete(exercise_to_delete)
+#     session.delete(exercise_to_delete)
 
-    session.commit()
+#     session.commit()
 
-    return exercise_to_delete
+#     return exercise_to_delete
 
 
 

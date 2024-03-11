@@ -32,42 +32,21 @@ class LoginModel(BaseModel):
 
 class WorkoutResponseModel(BaseModel):
     id:Optional[int]
-    date:Optional[str]
-    user_id:Optional[int]
+    date:str
+    user_id:int
     exercise_name =str
     sets =int
-    repetitions =Optional[int]
-    weight_lifted =Optional[float]
-    distance_covered =Optional[float]
-    calories_burned =Optional[float]
-    intensity_level =Optional[str]
-    class Config:
-         arbitrary_types_allowed = True
-         schema_extra={
+    repetitions =int
+    weight_lifted =float
+    distance_covered =float
+    calories_burned =float
+    intensity_level =str
+    schema_extra={
             'example':{
                 "exercise_name":"PUSHUPS",
                 "sets":3
             }
         }
-
-
-# # Define ActivityCreate and other models here
-# class ActivityCreate(BaseModel):
-#     name: str
-#     description: str
-#     user_id: int
-
-# class ActivityUpdate(BaseModel):
-#     name: str
-#     description: str
-
-# class WorkoutCreate(BaseModel):
-#     duration: int
-#     user_id: int
-
-# class WorkoutUpdate(BaseModel):
-#     duration: int
-
 
 
 
