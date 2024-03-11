@@ -204,8 +204,8 @@ async def get_specific_userdetails(id:int,Authorize:AuthJWT=Depends()):
 @exercise_router.put('/exercise/update/{id}/')
 async def update_user_details(id:int,model:WorkoutResponseModel,Authorize:AuthJWT=Depends()):
     """
-        ## Updating user details
-        This updates userdetails and requires the following fields
+        ## Updating exercise details
+        This updates exercise details and requires the following fields
         - exercise_name : str
         - sets: int
     
@@ -222,99 +222,44 @@ async def update_user_details(id:int,model:WorkoutResponseModel,Authorize:AuthJW
     exercise_to_update.exercise_name=model.exercise_name
     exercise_to_update.sets=model.sets
 
-#     session.commit()
+    session.commit()
 
 
-#     response={
-#                 "id":order_to_update.id,
-#                 "quantity":order_to_update.quantity,
-#                 "pizza_size":order_to_update.pizza_size,
-#                 "order_status":order_to_update.order_status,
-#             }
+    response={
+                "exercise_name":exercise_to_update.exercise_name,
+                "sets":exercise_to_update.sets,
+              
+               
+            }
 
-#     return jsonable_encoder(order_to_update)
+    return jsonable_encoder(exercise_to_update)
 
     
-# @order_router.patch('/order/update/{id}/')
-# async def update_order_status(id:int,
-#         order:OrderStatusModel,
-#         Authorize:AuthJWT=Depends()):
+
+@exercise_router.delete('/exercise/delete/{id}/',status_code=status.HTTP_204_NO_CONTENT)
+async def delete_an_exercise_details(id:int,Authorize:AuthJWT=Depends()):
+
+    """
+        ## Delete exercise details
+        This deletes exercise details by its ID
+    """
+
+    try:
+        Authorize.jwt_required()
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Token")
 
 
+    exercise_to_delete=session.query(Exercise).filter(Exercise.id==id).first()
 
+    session.delete(exercise_to_delete)
 
-# @order_router.delete('/order/delete/{id}/',status_code=status.HTTP_204_NO_CONTENT)
-# async def delete_an_order(id:int,Authorize:AuthJWT=Depends()):
+    session.commit()
 
-#     """
-#         ## Delete an Order
-#         This deletes an order by its ID
-#     """
-
-#     try:
-#         Authorize.jwt_required()
-
-#     except Exception as e:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid Token")
-
-
-#     order_to_delete=session.query(Order).filter(Order.id==id).first()
-
-#     session.delete(order_to_delete)
-
-#     session.commit()
-
-#     return order_to_delete
+    return exercise_to_delete
 
 
 
 
 
-
-# from schemas import ActivityResponse,WorkoutResponse
-# from sqlalchemy.orm import sessionmaker, Session, relationship
-
-
-# # Create new activity endpoint
-# @app.post("/activities/", response_model=ActivityResponse)
-# def create_activity(activity: ActivityCreate, db: Session = Depends(get_db)):
-#     new_activity = Activity(**activity.dict())
-#     db.add(new_activity)
-#     db.commit()
-#     db.refresh(new_activity)
-#     return new_activity
-
-# # Retrieve all activities endpoint
-# @app.get("/activities/", response_model=List[ActivityResponse])
-# def get_activities(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-#     return db.query(Activity).offset(skip).limit(limit).all()
-
-# # Retrieve activity by ID endpoint
-# @app.get("/activities/{activity_id}", response_model=ActivityResponse)
-# def get_activity(activity_id: int, db: Session = Depends(get_db)):
-#     activity = db.query(Activity).filter(Activity.id == activity_id).first()
-#     if activity is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
-#     return activity
-
-# # Update activity endpoint
-# @app.put("/activities/{activity_id}", response_model=ActivityResponse)
-# def update_activity(activity_id: int, activity_data: ActivityUpdate, db: Session = Depends(get_db)):
-#     activity = db.query(Activity).filter(Activity.id == activity_id).first()
-#     if activity is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
-#     for key, value in activity_data.dict().items():
-#         setattr(activity, key, value)
-#     db.commit()
-#     db.refresh(activity)
-#     return activity
-
-# # Delete activity endpoint
-# @app.delete("/activities/{activity_id}")
-# def delete_activity(activity_id: int, db: Session = Depends(get_db)):
-#     activity = db.query(Activity).filter(Activity.id == activity_id).first()
-#     if activity is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
-#     db.delete(activity)
-#     db.commit()
-#     return
